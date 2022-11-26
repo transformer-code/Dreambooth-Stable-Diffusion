@@ -27,7 +27,6 @@ from ldm.util import instantiate_from_config
 
 def load_model_from_config(config, ckpt, verbose=False):
     print(config)
-    assert 1 == 2
     print(f"Loading model from {ckpt}")
     pl_sd = torch.load(ckpt, map_location="cpu")
     sd = pl_sd["state_dict"]
@@ -531,6 +530,7 @@ class ModeSwapCallback(Callback):
             trainer.optimizers = [pl_module.configure_opt_model()]
 
 if __name__ == "__main__":
+    exit(-1)
     # custom parser to specify config files, train, test and debug mode,
     # postfix, resume.
     # `--key value` arguments are interpreted as arguments to the trainer.
