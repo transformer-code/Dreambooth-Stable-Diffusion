@@ -79,6 +79,7 @@ class DDPM(pl.LightningModule):
                  aux_unet_config=None
                  ):
         super().__init__()
+        print(aux_unet_config)
         assert parameterization in ["eps", "x0"], 'currently only supporting "eps" and "x0"'
         self.parameterization = parameterization
         print(f"{self.__class__.__name__}: Running in {self.parameterization}-prediction mode")
