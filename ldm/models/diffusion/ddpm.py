@@ -1540,7 +1540,7 @@ def get_model_size(model):
 
 def print_first_param(model):
     for param in model.parameters():
-        print(param)
+        print(param.mean())
         return
 
 
