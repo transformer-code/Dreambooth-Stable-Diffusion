@@ -880,7 +880,8 @@ if __name__ == "__main__":
                 raise
         if not opt.no_test and not trainer.interrupted:
             trainer.test(model, data)
-    except Exception:
+    except Exception as e:
+        print("Error:", e)
         if opt.debug and trainer.global_rank == 0:
             try:
                 import pudb as debugger
