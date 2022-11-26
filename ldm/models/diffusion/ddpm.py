@@ -1538,6 +1538,12 @@ def get_model_size(model):
     print('model size: {:.3f}MB'.format(size_all_mb))
 
 
+def print_first_param(model):
+    for param in model.parameters():
+        print(param)
+        return
+
+
 def freeze_params(model):
     params = model.parameters()
     for param in params:
@@ -1565,7 +1571,11 @@ class DiffusionWrapper(pl.LightningModule):
         elif self.conditioning_key == 'crossattn':
             cc = torch.cat(c_crossattn, 1)
             out = self.diffusion_model(x, t, context=cc)
+            print("first")
+            print_first_param(self.diffusion_model)
             out = self.aux_diffusion_model(out, t, context=cc)
+            print("second")
+            print_first_param(self.aux_diffusion_model)
 
         elif self.conditioning_key == 'hybrid':
             xc = torch.cat([x] + c_concat, dim=1)
