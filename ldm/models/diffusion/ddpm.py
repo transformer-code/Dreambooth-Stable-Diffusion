@@ -1538,6 +1538,11 @@ def get_model_size(model):
     print('model size: {:.3f}MB'.format(size_all_mb))
 
 
+def freeze_params(params):
+    for param in params:
+        param.requires_grad = False
+
+
 class DiffusionWrapper(pl.LightningModule):
     def __init__(self, diff_model_config, conditioning_key, aux_model_config=None):
         super().__init__()
@@ -1546,9 +1551,9 @@ class DiffusionWrapper(pl.LightningModule):
         assert self.conditioning_key in [None, 'concat', 'crossattn', 'hybrid', 'adm']
         self.aux_diffusion_model = instantiate_from_config(aux_model_config)
 
+        freeze_params(self.diffusion_model)
         get_model_size(self.diffusion_model)
         get_model_size(self.aux_diffusion_model)
-
 
     def forward(self, x, t, c_concat: list = None, c_crossattn: list = None):
         if self.conditioning_key is None:
