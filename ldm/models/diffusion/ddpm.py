@@ -1573,11 +1573,11 @@ class DiffusionWrapper(pl.LightningModule):
             cc = torch.cat(c_crossattn, 1)
             with torch.no_grad():
                 out = self.diffusion_model(x, t, context=cc)
-                print("first")
-                print_first_param(self.diffusion_model)
+                # print("first")
+                # print_first_param(self.diffusion_model)
             out = self.aux_diffusion_model(out, t, context=cc)
-            print("second")
-            print_first_param(self.aux_diffusion_model)
+            # print("second")
+            # print_first_param(self.aux_diffusion_model)
 
         elif self.conditioning_key == 'hybrid':
             xc = torch.cat([x] + c_concat, dim=1)
