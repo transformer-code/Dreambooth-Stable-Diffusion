@@ -1526,11 +1526,12 @@ class LatentDiffusion(DDPM):
 
 
 class DiffusionWrapper(pl.LightningModule):
-    def __init__(self, diff_model_config, conditioning_key):
+    def __init__(self, diff_model_config, conditioning_key, aux_model_config=None):
         super().__init__()
         self.diffusion_model = instantiate_from_config(diff_model_config)
         self.conditioning_key = conditioning_key
         assert self.conditioning_key in [None, 'concat', 'crossattn', 'hybrid', 'adm']
+        self.aux_diffusion_model = instantiate_from_config(aux_model_config)
 
     def forward(self, x, t, c_concat: list = None, c_crossattn: list = None):
         if self.conditioning_key is None:
@@ -1541,6 +1542,8 @@ class DiffusionWrapper(pl.LightningModule):
         elif self.conditioning_key == 'crossattn':
             cc = torch.cat(c_crossattn, 1)
             out = self.diffusion_model(x, t, context=cc)
+            out = self.aux_diffusion_model(out, t, context=cc)
+
         elif self.conditioning_key == 'hybrid':
             xc = torch.cat([x] + c_concat, dim=1)
             cc = torch.cat(c_crossattn, 1)
