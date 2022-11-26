@@ -1454,7 +1454,8 @@ class LatentDiffusion(DDPM):
             embedding_params = list(self.embedding_manager.embedding_parameters())
 
             if self.unfreeze_model: # Are we allowing the base model to train? If so, set two different parameter groups.
-                model_params = list(self.cond_stage_model.parameters()) + list(self.model.parameters())
+                # model_params = list(self.cond_stage_model.parameters()) + list(self.model.parameters())
+                model_params = list(self.cond_stage_model.parameters())
                 opt = torch.optim.AdamW([{"params": embedding_params, "lr": lr}, {"params": model_params}], lr=self.model_lr)
             else: # Otherwise, train only embedding
                 opt = torch.optim.AdamW(embedding_params, lr=lr)
