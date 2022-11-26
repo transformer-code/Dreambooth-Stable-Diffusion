@@ -63,7 +63,7 @@ model:
         context_dim: 768
         use_checkpoint: True
         legacy: False
-        use_fp16: True
+        use_fp16: False
 
 
     first_stage_config:
