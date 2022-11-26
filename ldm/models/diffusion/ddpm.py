@@ -1583,9 +1583,9 @@ class DiffusionWrapper(pl.LightningModule):
             out = self.diffusion_model(x, t, context=cc)
             # with torch.no_grad():
             #     cc = torch.cat(c_crossattn, 1)
-            #     out = self.diffusion_model(x, t, context=cc)
-            print("first")
-            print_first_param(self.diffusion_model)
+            # #     out = self.diffusion_model(x, t, context=cc)
+            # print("first")
+            # print_first_param(self.diffusion_model)
             # out = self.aux_diffusion_model(out, t, context=cc)
             # print("second")
             # print_first_param(self.aux_diffusion_model)
