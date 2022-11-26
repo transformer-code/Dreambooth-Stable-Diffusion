@@ -501,6 +501,13 @@ class LatentDiffusion(DDPM):
         self.embedding_manager = None
 
 
+        # not train
+        self.model.eval()
+        self.model.train = disabled_train
+        for param in self.model.parameters():
+            param.requires_grad = False
+
+
     def make_cond_schedule(self, ):
         self.cond_ids = torch.full(size=(self.num_timesteps,), fill_value=self.num_timesteps - 1, dtype=torch.long)
         ids = torch.round(torch.linspace(0, self.num_timesteps - 1, self.num_timesteps_cond)).long()
@@ -1562,10 +1569,10 @@ class DiffusionWrapper(pl.LightningModule):
         assert self.conditioning_key in [None, 'concat', 'crossattn', 'hybrid', 'adm']
         # self.aux_diffusion_model = instantiate_from_config(aux_model_config)
 
-        self.eval()
-        self.train = disabled_train
-        for param in self.parameters():
-            param.requires_grad = False
+        # self.eval()
+        # self.train = disabled_train
+        # for param in self.parameters():
+        #     param.requires_grad = False
 
     def forward(self, x, t, c_concat: list = None, c_crossattn: list = None):
         if self.conditioning_key is None:
