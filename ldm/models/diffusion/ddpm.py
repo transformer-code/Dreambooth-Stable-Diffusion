@@ -1457,7 +1457,7 @@ class LatentDiffusion(DDPM):
 
     def configure_optimizers(self):
         lr = self.learning_rate
-
+        assert  1 == 2
         if self.embedding_manager is not None: # If using textual inversion
             embedding_params = list(self.embedding_manager.embedding_parameters())
 
