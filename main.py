@@ -30,6 +30,8 @@ def load_model_from_config(config, ckpt, verbose=False):
     pl_sd = torch.load(ckpt, map_location="cpu")
     sd = pl_sd["state_dict"]
     config.model.params.ckpt_path = ckpt
+    print(config)
+    exit(-1)
     model = instantiate_from_config(config.model)
     m, u = model.load_state_dict(sd, strict=False)
     if len(m) > 0 and verbose:
