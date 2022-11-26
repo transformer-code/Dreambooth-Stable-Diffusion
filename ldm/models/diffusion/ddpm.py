@@ -1526,6 +1526,18 @@ class LatentDiffusion(DDPM):
     #         self.embedding_manager.save(os.path.join(self.trainer.checkpoint_callback.dirpath, f"embeddings_gs-{self.global_step}.pt"))
 
 
+def get_model_size(model):
+    param_size = 0
+    for param in model.parameters():
+        param_size += param.nelement() * param.element_size()
+    buffer_size = 0
+    for buffer in model.buffers():
+        buffer_size += buffer.nelement() * buffer.element_size()
+
+    size_all_mb = (param_size + buffer_size) / 1024 ** 2
+    print('model size: {:.3f}MB'.format(size_all_mb))
+
+
 class DiffusionWrapper(pl.LightningModule):
     def __init__(self, diff_model_config, conditioning_key, aux_model_config=None):
         super().__init__()
@@ -1533,6 +1545,10 @@ class DiffusionWrapper(pl.LightningModule):
         self.conditioning_key = conditioning_key
         assert self.conditioning_key in [None, 'concat', 'crossattn', 'hybrid', 'adm']
         self.aux_diffusion_model = instantiate_from_config(aux_model_config)
+
+        get_model_size(self.diffusion_model)
+        get_model_size(self.aux_diffusion_model)
+
 
     def forward(self, x, t, c_concat: list = None, c_crossattn: list = None):
         if self.conditioning_key is None:
