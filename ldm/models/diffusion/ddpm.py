@@ -1538,7 +1538,8 @@ def get_model_size(model):
     print('model size: {:.3f}MB'.format(size_all_mb))
 
 
-def freeze_params(params):
+def freeze_params(model):
+    params = model.parameters()
     for param in params:
         param.requires_grad = False
 
