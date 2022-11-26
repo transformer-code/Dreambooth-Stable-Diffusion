@@ -530,7 +530,6 @@ class ModeSwapCallback(Callback):
             trainer.optimizers = [pl_module.configure_opt_model()]
 
 if __name__ == "__main__":
-    exit(-1)
     # custom parser to specify config files, train, test and debug mode,
     # postfix, resume.
     # `--key value` arguments are interpreted as arguments to the trainer.
