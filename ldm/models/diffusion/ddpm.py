@@ -1560,9 +1560,11 @@ class DiffusionWrapper(pl.LightningModule):
         # self.aux_diffusion_model = instantiate_from_config(aux_model_config)
 
         self.diffusion_model.eval()
-        get_model_size(self.diffusion_model)
-        # get_model_size(self.aux_diffusion_model)
-
+        self.diffusion_model.eval()
+        self.diffusion_model.train = disabled_train
+        for param in self.diffusion_model.parameters():
+            param.requires_grad = False
+        
     def forward(self, x, t, c_concat: list = None, c_crossattn: list = None):
         if self.conditioning_key is None:
             out = self.diffusion_model(x, t)
@@ -1571,8 +1573,10 @@ class DiffusionWrapper(pl.LightningModule):
             out = self.diffusion_model(xc, t)
         elif self.conditioning_key == 'crossattn':
             cc = torch.cat(c_crossattn, 1)
-            with torch.no_grad():
-                out = self.diffusion_model(x, t, context=cc)
+            out = self.diffusion_model(x, t, context=cc)
+            # with torch.no_grad():
+            #     cc = torch.cat(c_crossattn, 1)
+            #     out = self.diffusion_model(x, t, context=cc)
                 # print("first")
                 # print_first_param(self.diffusion_model)
             # out = self.aux_diffusion_model(out, t, context=cc)
