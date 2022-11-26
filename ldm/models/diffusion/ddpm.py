@@ -1539,9 +1539,10 @@ def get_model_size(model):
 
 
 def print_first_param(model):
+    res = 0
     for param in model.parameters():
-        print(param.mean())
-        return
+        res += param.mean().value()
+    print(res)
 
 
 def freeze_params(model):
