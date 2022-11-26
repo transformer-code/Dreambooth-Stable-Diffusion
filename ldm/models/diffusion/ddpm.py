@@ -1457,7 +1457,6 @@ class LatentDiffusion(DDPM):
 
     def configure_optimizers(self):
         lr = self.learning_rate
-        assert  1 == 2
         if self.embedding_manager is not None: # If using textual inversion
             embedding_params = list(self.embedding_manager.embedding_parameters())
 
@@ -1478,7 +1477,7 @@ class LatentDiffusion(DDPM):
                 params.append(self.logvar)
 
             opt = torch.optim.AdamW(params, lr=lr)
-
+        assert  1 == 2
         return opt
 
     def configure_opt_embedding(self):
