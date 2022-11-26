@@ -423,12 +423,13 @@ class DDPM(pl.LightningModule):
         return log
 
     def configure_optimizers(self):
-        lr = self.learning_rate
-        params = list(self.model.parameters())
-        if self.learn_logvar:
-            params = params + [self.logvar]
-        opt = torch.optim.AdamW(params, lr=lr)
-        return opt
+        # lr = self.learning_rate
+        # params = list(self.model.parameters())
+        # if self.learn_logvar:
+        #     params = params + [self.logvar]
+        # opt = torch.optim.AdamW(params, lr=lr)
+        # return opt
+        return None
 
 
 class LatentDiffusion(DDPM):
@@ -1563,8 +1564,8 @@ class DiffusionWrapper(pl.LightningModule):
 
         self.eval()
         self.train = disabled_train
-        # for param in self.parameters():
-        #     param.requires_grad = False
+        for param in self.parameters():
+            param.requires_grad = False
 
     def forward(self, x, t, c_concat: list = None, c_crossattn: list = None):
         if self.conditioning_key is None:
