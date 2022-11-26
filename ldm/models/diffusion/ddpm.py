@@ -1604,7 +1604,14 @@ class DiffusionWrapper(pl.LightningModule):
 
         return out
 
-
+    def configure_optimizers(self):
+        # lr = self.learning_rate
+        # params = list(self.model.parameters())
+        # if self.learn_logvar:
+        #     params = params + [self.logvar]
+        # opt = torch.optim.AdamW(params, lr=lr)
+        # return opt
+        return None
 
 
 class Layout2ImgDiffusion(LatentDiffusion):
