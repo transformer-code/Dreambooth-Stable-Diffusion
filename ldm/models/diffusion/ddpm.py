@@ -1541,7 +1541,7 @@ def get_model_size(model):
 def print_first_param(model):
     res = 0
     for param in model.parameters():
-        res += param.mean().value()
+        res += param.mean().item()
     print(res)
 
 
