@@ -1552,7 +1552,7 @@ class DiffusionWrapper(pl.LightningModule):
         assert self.conditioning_key in [None, 'concat', 'crossattn', 'hybrid', 'adm']
         self.aux_diffusion_model = instantiate_from_config(aux_model_config)
 
-        freeze_params(self.diffusion_model)
+        self.diffusion_model.eval()
         get_model_size(self.diffusion_model)
         get_model_size(self.aux_diffusion_model)
 
