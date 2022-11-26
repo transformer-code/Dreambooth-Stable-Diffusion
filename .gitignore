@@ -7,3 +7,12 @@ __pycache__
 */**/__pycache__
 logs
 *.ckpt
+
+*.png
+*.jpg
+resume_model
+training_images
+outputs
+output_model
+output_models
+fp_models
