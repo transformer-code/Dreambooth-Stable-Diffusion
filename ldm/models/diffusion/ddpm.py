@@ -1557,11 +1557,11 @@ class DiffusionWrapper(pl.LightningModule):
         self.diffusion_model = instantiate_from_config(diff_model_config)
         self.conditioning_key = conditioning_key
         assert self.conditioning_key in [None, 'concat', 'crossattn', 'hybrid', 'adm']
-        self.aux_diffusion_model = instantiate_from_config(aux_model_config)
+        # self.aux_diffusion_model = instantiate_from_config(aux_model_config)
 
         self.diffusion_model.eval()
         get_model_size(self.diffusion_model)
-        get_model_size(self.aux_diffusion_model)
+        # get_model_size(self.aux_diffusion_model)
 
     def forward(self, x, t, c_concat: list = None, c_crossattn: list = None):
         if self.conditioning_key is None:
@@ -1575,7 +1575,7 @@ class DiffusionWrapper(pl.LightningModule):
                 out = self.diffusion_model(x, t, context=cc)
                 # print("first")
                 # print_first_param(self.diffusion_model)
-            out = self.aux_diffusion_model(out, t, context=cc)
+            # out = self.aux_diffusion_model(out, t, context=cc)
             # print("second")
             # print_first_param(self.aux_diffusion_model)
 
