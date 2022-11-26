@@ -1559,12 +1559,11 @@ class DiffusionWrapper(pl.LightningModule):
         assert self.conditioning_key in [None, 'concat', 'crossattn', 'hybrid', 'adm']
         # self.aux_diffusion_model = instantiate_from_config(aux_model_config)
 
-        self.diffusion_model.eval()
-        self.diffusion_model.eval()
-        self.diffusion_model.train = disabled_train
-        for param in self.diffusion_model.parameters():
+        self.eval()
+        self.train = disabled_train
+        for param in self.parameters():
             param.requires_grad = False
-        
+
     def forward(self, x, t, c_concat: list = None, c_crossattn: list = None):
         if self.conditioning_key is None:
             out = self.diffusion_model(x, t)
