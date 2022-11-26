@@ -27,7 +27,7 @@ from ldm.util import instantiate_from_config
 
 def load_model_from_config(config, ckpt, verbose=False):
     print(config)
-    exit(-1)
+    assert 1 == 2
     print(f"Loading model from {ckpt}")
     pl_sd = torch.load(ckpt, map_location="cpu")
     sd = pl_sd["state_dict"]
