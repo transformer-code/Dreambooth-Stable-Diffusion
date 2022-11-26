@@ -1477,7 +1477,6 @@ class LatentDiffusion(DDPM):
                 params.append(self.logvar)
 
             opt = torch.optim.AdamW(params, lr=lr)
-        assert  1 == 2
         return opt
 
     def configure_opt_embedding(self):
