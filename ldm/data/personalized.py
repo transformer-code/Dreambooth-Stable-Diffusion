@@ -33,6 +33,8 @@ class PersonalizedBase(Dataset):
 
         self.image_paths = find_images(self.data_root)
 
+        print("images paths:", self.image_paths)
+
         # self._length = len(self.image_paths)
         self.num_images = len(self.image_paths)
         self._length = self.num_images
