@@ -165,13 +165,16 @@ class SpatialRescaler(nn.Module):
 
 class FrozenCLIPEmbedder(AbstractEncoder):
     """Uses the CLIP transformer encoder for text (from Hugging Face)"""
-    def __init__(self, version="openai/clip-vit-large-patch14", device="cuda", max_length=77):
+    def __init__(self, version="openai/clip-vit-large-patch14", device="cuda", max_length=77, is_need_subfolder=False):
         super().__init__()
-        version = "liangwei1234/paivacuumcleaner-yxts_20221113-062334"
+        # version = "liangwei1234/paivacuumcleaner-yxts_20221113-062334"
         # print("clip version is:", version_debug)
-        self.tokenizer = CLIPTokenizer.from_pretrained(version, subfolder="tokenizer")
-        self.transformer = CLIPTextModel.from_pretrained(version, subfolder="text_encoder")
-
+        if is_need_subfolder:
+            self.tokenizer = CLIPTokenizer.from_pretrained(version, subfolder="tokenizer")
+            self.transformer = CLIPTextModel.from_pretrained(version, subfolder="text_encoder")
+        else:
+            self.tokenizer = CLIPTokenizer.from_pretrained(version)
+            self.transformer = CLIPTextModel.from_pretrained(version)
         # print("clip version is:", version)
         # self.tokenizer = CLIPTokenizer.from_pretrained(version)
         # self.transformer = CLIPTextModel.from_pretrained(version)
