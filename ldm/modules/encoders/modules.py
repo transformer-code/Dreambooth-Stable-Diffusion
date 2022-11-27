@@ -165,9 +165,9 @@ class FrozenCLIPEmbedder(AbstractEncoder):
         self.transformer_debug = CLIPTextModel.from_pretrained(version_debug, subfolder="text_encoder")
 
         text = "test"
-        batch_encoding = self.tokenizer_debug(text, truncation=True, max_length=self.max_length, return_length=True,
+        batch_encoding = self.tokenizer_debug(text, truncation=True, max_length=max_length, return_length=True,
                                         return_overflowing_tokens=False, padding="max_length", return_tensors="pt")
-        tokens = batch_encoding["input_ids"].to(self.device)
+        tokens = batch_encoding["input_ids"].to(device)
         z = self.transformer_debug(input_ids=tokens)
         print("z1:", z)
 
@@ -176,10 +176,10 @@ class FrozenCLIPEmbedder(AbstractEncoder):
         self.transformer = CLIPTextModel.from_pretrained(version)
 
         text = "test"
-        batch_encoding = self.tokenizer(text, truncation=True, max_length=self.max_length, return_length=True,
+        batch_encoding = self.tokenizer(text, truncation=True, max_length=max_length, return_length=True,
                                               return_overflowing_tokens=False, padding="max_length",
                                               return_tensors="pt")
-        tokens = batch_encoding["input_ids"].to(self.device)
+        tokens = batch_encoding["input_ids"].to(device)
         z = self.transformer(input_ids=tokens)
         print("z2:", z)
 
