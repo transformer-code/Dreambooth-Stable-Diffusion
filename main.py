@@ -679,6 +679,8 @@ if __name__ == "__main__":
         config.data.params.validation.params.placeholder_token = opt.token
         config.data.params.validation.params.data_root = opt.data_root
 
+        # config for cond stage model
+        config.model.params.cond_stage_config.params.ckpt_path = opt.actual_resume
         if opt.actual_resume:
             model = load_model_from_config(config, opt.actual_resume)
         else:
