@@ -198,6 +198,8 @@ class FrozenCLIPEmbedder(AbstractEncoder):
                 return embeddings      
 
         self.transformer.text_model.embeddings.forward = embedding_forward.__get__(self.transformer.text_model.embeddings)
+        self.transformer_debug.text_model.embeddings.forward = embedding_forward.__get__(
+            self.transformer_debug.text_model.embeddings)
 
         def encoder_forward(
             self,
@@ -240,6 +242,7 @@ class FrozenCLIPEmbedder(AbstractEncoder):
             return hidden_states
 
         self.transformer.text_model.encoder.forward = encoder_forward.__get__(self.transformer.text_model.encoder)
+        self.transformer_debug.text_model.encoder.forward = encoder_forward.__get__(self.transformer_debug.text_model.encoder)
 
 
         def text_encoder_forward(
@@ -292,6 +295,7 @@ class FrozenCLIPEmbedder(AbstractEncoder):
             return last_hidden_state
 
         self.transformer.text_model.forward = text_encoder_forward.__get__(self.transformer.text_model)
+        self.transformer_debug.text_model.forward = text_encoder_forward.__get__(self.transformer_debug.text_model)
 
         def transformer_forward(
             self,
@@ -314,6 +318,7 @@ class FrozenCLIPEmbedder(AbstractEncoder):
             )
 
         self.transformer.forward = transformer_forward.__get__(self.transformer)
+        self.transformer_debug.forward = transformer_forward.__get__(self.transformer_debug)
 
     def freeze(self):
         self.transformer = self.transformer.eval()
@@ -334,7 +339,7 @@ class FrozenCLIPEmbedder(AbstractEncoder):
         tokens = batch_encoding["input_ids"].to(self.device)
         z = self.transformer_debug(input_ids=tokens, **kwargs)
         print("z debug:", z)
-        
+
         return z
 
     def encode(self, text, **kwargs):
