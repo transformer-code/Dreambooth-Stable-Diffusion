@@ -164,24 +164,10 @@ class FrozenCLIPEmbedder(AbstractEncoder):
         self.tokenizer_debug = CLIPTokenizer.from_pretrained(version_debug, subfolder="tokenizer")
         self.transformer_debug = CLIPTextModel.from_pretrained(version_debug, subfolder="text_encoder")
 
-        text = "test"
-        batch_encoding = self.tokenizer_debug(text, truncation=True, max_length=max_length, return_length=True,
-                                        return_overflowing_tokens=False, padding="max_length", return_tensors="pt")
-        tokens = batch_encoding["input_ids"].to(device)
-        z = self.transformer_debug(input_ids=tokens)
-        print("z1:", z)
 
         # print("clip version is:", version)
         self.tokenizer = CLIPTokenizer.from_pretrained(version)
         self.transformer = CLIPTextModel.from_pretrained(version)
-
-        text = "test"
-        batch_encoding = self.tokenizer(text, truncation=True, max_length=max_length, return_length=True,
-                                              return_overflowing_tokens=False, padding="max_length",
-                                              return_tensors="pt")
-        tokens = batch_encoding["input_ids"].to(device)
-        z = self.transformer(input_ids=tokens)
-        print("z2:", z)
 
         self.device = device
         self.max_length = max_length
@@ -335,19 +321,20 @@ class FrozenCLIPEmbedder(AbstractEncoder):
             param.requires_grad = False
 
     def forward(self, text, **kwargs):
+        print("text is:", text)
+
         batch_encoding = self.tokenizer(text, truncation=True, max_length=self.max_length, return_length=True,
                                         return_overflowing_tokens=False, padding="max_length", return_tensors="pt")
         tokens = batch_encoding["input_ids"].to(self.device)        
         z = self.transformer(input_ids=tokens, **kwargs)
-
-        text = "test"
-        batch_encoding = self.tokenizer(text, truncation=True, max_length=self.max_length, return_length=True,
-                                              return_overflowing_tokens=False, padding="max_length",
-                                              return_tensors="pt")
-        tokens = batch_encoding["input_ids"].to(self.device)
-        z = self.transformer(input_ids=tokens)
         print("z forward:", z)
 
+        batch_encoding = self.tokenizer_debug(text, truncation=True, max_length=self.max_length, return_length=True,
+                                        return_overflowing_tokens=False, padding="max_length", return_tensors="pt")
+        tokens = batch_encoding["input_ids"].to(self.device)
+        z = self.transformer_debug(input_ids=tokens, **kwargs)
+        print("z debug:", z)
+        
         return z
 
     def encode(self, text, **kwargs):
