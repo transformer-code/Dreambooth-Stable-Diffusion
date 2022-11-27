@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="cd9a968a-f8ab-48a6-b718-381db0ed2387" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/ldm/data/personalized.py" beforeDir="false" afterPath="$PROJECT_DIR$/ldm/data/personalized.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ldm/models/diffusion/ddpm.py" beforeDir="false" afterPath="$PROJECT_DIR$/ldm/models/diffusion/ddpm.py" afterDir="false" />
+    <list default="true" id="a18a6683-8eb3-4ec7-a424-011733293afa" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/scripts/download.sh" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/scripts/upload.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/Dreambooth-Stable-Diffusion.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/Dreambooth-Stable-Diffusion.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dreambooth_runpod_joepenna.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/dreambooth_runpod_joepenna.ipynb" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -65,5 +68,16 @@
         </entry>
       </map>
     </option>
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <default-breakpoints>
+        <breakpoint type="python-exception">
+          <properties notifyOnTerminate="true" exception="BaseException">
+            <option name="notifyOnTerminate" value="true" />
+          </properties>
+        </breakpoint>
+      </default-breakpoints>
+    </breakpoint-manager>
   </component>
 </project>

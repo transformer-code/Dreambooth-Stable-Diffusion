@@ -1,0 +1,438 @@
+Index: dreambooth_runpod_joepenna.ipynb
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>{\r\n \"cells\": [\r\n  {\r\n   \"cell_type\": \"markdown\",\r\n   \"id\": \"aa2c1ada\",\r\n   \"metadata\": {\r\n    \"id\": \"aa2c1ada\"\r\n   },\r\n   \"source\": [\r\n    \"# Dreambooth\\n\",\r\n    \"### Notebook implementation by Joe Penna (@MysteryGuitarM on Twitter) - Improvements by David Bielejeski\\n\",\r\n    \"\\n\",\r\n    \"### Instructions\\n\",\r\n    \"- Sign up for RunPod here: https://runpod.io/?ref=n8yfwyum\\n\",\r\n    \"    - Note: That's my personal referral link. Please don't use it if we are mortal enemies.\\n\",\r\n    \"\\n\",\r\n    \"- Click *Deploy* on either `SECURE CLOUD` or `COMMUNITY CLOUD`\\n\",\r\n    \"\\n\",\r\n    \"- Follow the rest of the instructions in this video: https://www.youtube.com/watch?v=7m__xadX0z0#t=5m33.1s\\n\",\r\n    \"\\n\",\r\n    \"Latest information on:\\n\",\r\n    \"https://github.com/JoePenna/Dreambooth-Stable-Diffusion\"\r\n   ]\r\n  },\r\n  {\r\n   \"cell_type\": \"markdown\",\r\n   \"id\": \"7b971cc0\",\r\n   \"metadata\": {\r\n    \"id\": \"7b971cc0\"\r\n   },\r\n   \"source\": [\r\n    \"## Build Environment\"\r\n   ]\r\n  },\r\n  {\r\n   \"cell_type\": \"code\",\r\n   \"execution_count\": null,\r\n   \"id\": \"2AsGA1xpNQnb\",\r\n   \"metadata\": {\r\n    \"id\": \"2AsGA1xpNQnb\"\r\n   },\r\n   \"outputs\": [],\r\n   \"source\": [\r\n    \"# If running on Vast.AI, copy the code in this cell into a new notebook. Run it, then launch the `dreambooth_runpod_joepenna.ipynb` notebook from the jupyter interface.\\n\",\r\n    \"!git clone https://github.com/JoePenna/Dreambooth-Stable-Diffusion\"\r\n   ]\r\n  },\r\n  {\r\n   \"cell_type\": \"code\",\r\n   \"execution_count\": null,\r\n   \"id\": \"9e1bc458-091b-42f4-a125-c3f0df20f29d\",\r\n   \"metadata\": {\r\n    \"id\": \"9e1bc458-091b-42f4-a125-c3f0df20f29d\",\r\n    \"scrolled\": true\r\n   },\r\n   \"outputs\": [],\r\n   \"source\": [\r\n    \"# BUILD ENV\\n\",\r\n    \"!pip install omegaconf\\n\",\r\n    \"!pip install einops\\n\",\r\n    \"!pip install pytorch-lightning==1.6.5\\n\",\r\n    \"!pip install test-tube\\n\",\r\n    \"!pip install transformers\\n\",\r\n    \"!pip install kornia\\n\",\r\n    \"!pip install -e git+https://github.com/CompVis/taming-transformers.git@master#egg=taming-transformers\\n\",\r\n    \"!pip install -e git+https://github.com/openai/CLIP.git@main#egg=clip\\n\",\r\n    \"!pip install setuptools==59.5.0\\n\",\r\n    \"!pip install pillow==9.0.1\\n\",\r\n    \"!pip install torchmetrics==0.6.0\\n\",\r\n    \"!pip install -e .\\n\",\r\n    \"!pip install protobuf==3.20.1\\n\",\r\n    \"!pip install gdown\\n\",\r\n    \"!pip install -qq diffusers[\\\"training\\\"]==0.3.0 transformers ftfy\\n\",\r\n    \"!pip install -qq \\\"ipywidgets>=7,<8\\\"\\n\",\r\n    \"!pip install huggingface_hub\\n\",\r\n    \"!pip install ipywidgets==7.7.1\\n\",\r\n    \"!pip install captionizer==1.0.1\\n\"\r\n   ]\r\n  },\r\n  {\r\n   \"cell_type\": \"code\",\r\n   \"execution_count\": null,\r\n   \"id\": \"dae11c10\",\r\n   \"metadata\": {\r\n    \"id\": \"dae11c10\"\r\n   },\r\n   \"outputs\": [],\r\n   \"source\": [\r\n    \"# Hugging Face Login\\n\",\r\n    \"from huggingface_hub import notebook_login\\n\",\r\n    \"\\n\",\r\n    \"notebook_login()\"\r\n   ]\r\n  },\r\n  {\r\n   \"cell_type\": \"code\",\r\n   \"execution_count\": null,\r\n   \"metadata\": {\r\n    \"collapsed\": false\r\n   },\r\n   \"outputs\": [],\r\n   \"source\": [\r\n    \"# Download the 1.4 sd model\\n\",\r\n    \"from IPython.display import clear_output\\n\",\r\n    \"\\n\",\r\n    \"from huggingface_hub import hf_hub_download\\n\",\r\n    \"downloaded_model_path = hf_hub_download(\\n\",\r\n    \" repo_id=\\\"CompVis/stable-diffusion-v-1-4-original\\\",\\n\",\r\n    \" filename=\\\"sd-v1-4.ckpt\\\",\\n\",\r\n    \" use_auth_token=True\\n\",\r\n    \")\\n\",\r\n    \"\\n\",\r\n    \"# Move the sd-v1-4.ckpt to the root of this directory as \\\"model.ckpt\\\"\\n\",\r\n    \"actual_locations_of_model_blob = !readlink -f {downloaded_model_path}\\n\",\r\n    \"!mv {actual_locations_of_model_blob[-1]} model.ckpt\\n\",\r\n    \"clear_output()\\n\",\r\n    \"print(\\\"✅ model.ckpt successfully downloaded\\\")\"\r\n   ]\r\n  },\r\n  {\r\n   \"cell_type\": \"markdown\",\r\n   \"id\": \"17d1d11a\",\r\n   \"metadata\": {\r\n    \"id\": \"17d1d11a\"\r\n   },\r\n   \"source\": [\r\n    \"# Regularization Images (Skip this section if you are uploading your own or using the provided images)\"\r\n   ]\r\n  },\r\n  {\r\n   \"cell_type\": \"markdown\",\r\n   \"id\": \"ed07a5df\",\r\n   \"metadata\": {\r\n    \"id\": \"ed07a5df\"\r\n   },\r\n   \"source\": [\r\n    \"Training teaches your new model both your token **but** re-trains your class simultaneously.\\n\",\r\n    \"\\n\",\r\n    \"From cursory testing, it does not seem like reg images affect the model too much. However, they do affect your class greatly, which will in turn affect your generations.\\n\",\r\n    \"\\n\",\r\n    \"You can either generate your images here, or use the repos below to quickly download 1500 images.\"\r\n   ]\r\n  },\r\n  {\r\n   \"cell_type\": \"code\",\r\n   \"execution_count\": null,\r\n   \"id\": \"67f9ff0c-b529-4c7c-8e26-8388d70a5d91\",\r\n   \"metadata\": {\r\n    \"id\": \"67f9ff0c-b529-4c7c-8e26-8388d70a5d91\"\r\n   },\r\n   \"outputs\": [],\r\n   \"source\": [\r\n    \"# GENERATE 200 images - Optional\\n\",\r\n    \"self_generated_files_prompt = \\\"person\\\" #@param {type:\\\"string\\\"}\\n\",\r\n    \"self_generated_files_count = 200 #@param {type:\\\"integer\\\"}\\n\",\r\n    \"\\n\",\r\n    \"!python scripts/stable_txt2img.py \\\\\\n\",\r\n    \" --seed 10 \\\\\\n\",\r\n    \" --ddim_eta 0.0 \\\\\\n\",\r\n    \" --n_samples 1 \\\\\\n\",\r\n    \" --n_iter {self_generated_files_count} \\\\\\n\",\r\n    \" --scale 10.0 \\\\\\n\",\r\n    \" --ddim_steps 50 \\\\\\n\",\r\n    \" --ckpt model.ckpt \\\\\\n\",\r\n    \" --prompt {self_generated_files_prompt}\\n\",\r\n    \"\\n\",\r\n    \"dataset=self_generated_files_prompt\\n\",\r\n    \"\\n\",\r\n    \"!mkdir -p regularization_images/{dataset}\\n\",\r\n    \"!mv outputs/txt2img-samples/*.png regularization_images/{dataset}\"\r\n   ]\r\n  },\r\n  {\r\n   \"cell_type\": \"code\",\r\n   \"execution_count\": null,\r\n   \"id\": \"3d1c7e1c\",\r\n   \"metadata\": {\r\n    \"id\": \"3d1c7e1c\"\r\n   },\r\n   \"outputs\": [],\r\n   \"source\": [\r\n    \"# Zip up the files for downloading and reuse.\\n\",\r\n    \"# Download this file locally so you can reuse during another training on this dataset\\n\",\r\n    \"!apt-get install -y zip\\n\",\r\n    \"!zip -r regularization_images.zip regularization_images/{dataset}\"\r\n   ]\r\n  },\r\n  {\r\n   \"cell_type\": \"markdown\",\r\n   \"source\": [\r\n    \"# Download pre-generated regularization images\\n\",\r\n    \"We've created the following image sets\\n\",\r\n    \"\\n\",\r\n    \"`man_euler` - provided by Niko Pueringer (Corridor Digital) - euler @ 40 steps, CFG 7.5\\n\",\r\n    \"`man_unsplash` - pictures from various photographers\\n\",\r\n    \"`person_ddim`\\n\",\r\n    \"`woman_ddim` - provided by David Bielejeski - ddim @ 50 steps, CFG 10.0\\n\",\r\n    \"`person_ddim` is recommended\"\r\n   ],\r\n   \"metadata\": {\r\n    \"collapsed\": false\r\n   }\r\n  },\r\n  {\r\n   \"cell_type\": \"code\",\r\n   \"execution_count\": 1,\r\n   \"id\": \"e7EydXCjOV1v\",\r\n   \"metadata\": {\r\n    \"id\": \"e7EydXCjOV1v\"\r\n   },\r\n   \"outputs\": [],\r\n   \"source\": [\r\n    \"#Download Regularization Images\\n\",\r\n    \"\\n\",\r\n    \"dataset=\\\"person_ddim\\\" #@param [\\\"man_euler\\\", \\\"man_unsplash\\\", \\\"person_ddim\\\", \\\"woman_ddim\\\", \\\"blonde_woman\\\"]\\n\",\r\n    \"!git clone https://github.com/djbielejeski/Stable-Diffusion-Regularization-Images-{dataset}.git\\n\",\r\n    \"\\n\",\r\n    \"!mkdir -p regularization_images/{dataset}\\n\",\r\n    \"!mv -v Stable-Diffusion-Regularization-Images-{dataset}/{dataset}/*.* regularization_images/{dataset}\"\r\n   ]\r\n  },\r\n  {\r\n   \"cell_type\": \"markdown\",\r\n   \"source\": [\r\n    \"# Upload your training images\\n\",\r\n    \"Upload 10-20 images of someone to\\n\",\r\n    \"\\n\",\r\n    \"```\\n\",\r\n    \"/workspace/Dreambooth-Stable-Diffusion/training_images\\n\",\r\n    \"```\\n\",\r\n    \"\\n\",\r\n    \"WARNING: Be sure to upload an *even* amount of images, otherwise the training inexplicably stops at 1500 steps.\\n\",\r\n    \"\\n\",\r\n    \"*   2-3 full body\\n\",\r\n    \"*   3-5 upper body\\n\",\r\n    \"*   5-12 close-up on face\\n\",\r\n    \"\\n\",\r\n    \"The images should be:\\n\",\r\n    \"\\n\",\r\n    \"- as close as possible to the kind of images you're trying to make\"\r\n   ],\r\n   \"metadata\": {\r\n    \"collapsed\": false\r\n   }\r\n  },\r\n  {\r\n   \"cell_type\": \"code\",\r\n   \"execution_count\": null,\r\n   \"outputs\": [],\r\n   \"source\": [\r\n    \"#@markdown Add here the URLs to the images of the subject you are adding\\n\",\r\n    \"urls = [\\n\",\r\n    \" \\\"https://i.imgur.com/test1.png\\\",\\n\",\r\n    \" \\\"https://i.imgur.com/test2.png\\\",\\n\",\r\n    \" \\\"https://i.imgur.com/test3.png\\\",\\n\",\r\n    \" \\\"https://i.imgur.com/test4.png\\\",\\n\",\r\n    \" \\\"https://i.imgur.com/test5.png\\\",\\n\",\r\n    \" # You can add additional images here -- about 20-30 images in different\\n\",\r\n    \"]\"\r\n   ],\r\n   \"metadata\": {\r\n    \"collapsed\": false\r\n   }\r\n  },\r\n  {\r\n   \"cell_type\": \"code\",\r\n   \"execution_count\": null,\r\n   \"metadata\": {\r\n    \"collapsed\": false\r\n   },\r\n   \"outputs\": [],\r\n   \"source\": [\r\n    \"#@title Download and check the images you have just added\\n\",\r\n    \"import os\\n\",\r\n    \"import requests\\n\",\r\n    \"from io import BytesIO\\n\",\r\n    \"from PIL import Image\\n\",\r\n    \"\\n\",\r\n    \"\\n\",\r\n    \"def image_grid(imgs, rows, cols):\\n\",\r\n    \" assert len(imgs) == rows*cols\\n\",\r\n    \"\\n\",\r\n    \" w, h = imgs[0].size\\n\",\r\n    \" grid = Image.new('RGB', size=(cols*w, rows*h))\\n\",\r\n    \" grid_w, grid_h = grid.size\\n\",\r\n    \"\\n\",\r\n    \" for i, img in enumerate(imgs):\\n\",\r\n    \"  grid.paste(img, box=(i%cols*w, i//cols*h))\\n\",\r\n    \" return grid\\n\",\r\n    \"\\n\",\r\n    \"def download_image(url):\\n\",\r\n    \" try:\\n\",\r\n    \"  response = requests.get(url)\\n\",\r\n    \" except:\\n\",\r\n    \"  return None\\n\",\r\n    \" return Image.open(BytesIO(response.content)).convert(\\\"RGB\\\")\\n\",\r\n    \"\\n\",\r\n    \"images = list(filter(None,[download_image(url) for url in urls]))\\n\",\r\n    \"save_path = \\\"./training_images\\\"\\n\",\r\n    \"if not os.path.exists(save_path):\\n\",\r\n    \" os.mkdir(save_path)\\n\",\r\n    \"[image.save(f\\\"{save_path}/{i}.png\\\", format=\\\"png\\\") for i, image in enumerate(images)]\\n\",\r\n    \"image_grid(images, 1, len(images))\"\r\n   ]\r\n  },\r\n  {\r\n   \"cell_type\": \"markdown\",\r\n   \"id\": \"ad4e50df\",\r\n   \"metadata\": {\r\n    \"id\": \"ad4e50df\"\r\n   },\r\n   \"source\": [\r\n    \"## Training\\n\",\r\n    \"\\n\",\r\n    \"If training a person or subject, keep an eye on your project's `logs/{folder}/images/train/samples_scaled_gs-00xxxx` generations.\\n\",\r\n    \"\\n\",\r\n    \"If training a style, keep an eye on your project's `logs/{folder}/images/train/samples_gs-00xxxx` generations.\"\r\n   ]\r\n  },\r\n  {\r\n   \"cell_type\": \"code\",\r\n   \"execution_count\": null,\r\n   \"id\": \"6fa5dd66-2ca0-4819-907e-802e25583ae6\",\r\n   \"metadata\": {\r\n    \"id\": \"6fa5dd66-2ca0-4819-907e-802e25583ae6\",\r\n    \"tags\": []\r\n   },\r\n   \"outputs\": [],\r\n   \"source\": [\r\n    \"# Training\\n\",\r\n    \"\\n\",\r\n    \"# This isn't used for training, just to help you remember what your trained into the model.\\n\",\r\n    \"project_name = \\\"project_name\\\"\\n\",\r\n    \"\\n\",\r\n    \"# MAX STEPS\\n\",\r\n    \"# How many steps do you want to train for?\\n\",\r\n    \"max_training_steps = 2000\\n\",\r\n    \"\\n\",\r\n    \"# Match class_word to the category of the regularization images you chose above.\\n\",\r\n    \"class_word = \\\"person\\\" # typical uses are \\\"man\\\", \\\"person\\\", \\\"woman\\\"\\n\",\r\n    \"\\n\",\r\n    \"# This is the unique token you are incorporating into the stable diffusion model.\\n\",\r\n    \"token = \\\"firstNameLastName\\\"\\n\",\r\n    \"\\n\",\r\n    \"\\n\",\r\n    \"reg_data_root = \\\"/workspace/Dreambooth-Stable-Diffusion/regularization_images/\\\" + dataset\\n\",\r\n    \"\\n\",\r\n    \"!rm -rf training_images/.ipynb_checkpoints\\n\",\r\n    \"!python \\\"main.py\\\" \\\\\\n\",\r\n    \" --base configs/stable-diffusion/v1-finetune_unfrozen.yaml \\\\\\n\",\r\n    \" -t \\\\\\n\",\r\n    \" --actual_resume \\\"model.ckpt\\\" \\\\\\n\",\r\n    \" --reg_data_root \\\"{reg_data_root}\\\" \\\\\\n\",\r\n    \" -n \\\"{project_name}\\\" \\\\\\n\",\r\n    \" --gpus 0, \\\\\\n\",\r\n    \" --data_root \\\"/workspace/Dreambooth-Stable-Diffusion/training_images\\\" \\\\\\n\",\r\n    \" --max_training_steps {max_training_steps} \\\\\\n\",\r\n    \" --class_word \\\"{class_word}\\\" \\\\\\n\",\r\n    \" --token \\\"{token}\\\" \\\\\\n\",\r\n    \" --no-test\"\r\n   ]\r\n  },\r\n  {\r\n   \"cell_type\": \"markdown\",\r\n   \"id\": \"dc49d0bd\",\r\n   \"metadata\": {},\r\n   \"source\": [\r\n    \"## Copy and name the checkpoint file\"\r\n   ]\r\n  },\r\n  {\r\n   \"cell_type\": \"code\",\r\n   \"execution_count\": null,\r\n   \"metadata\": {\r\n    \"collapsed\": false\r\n   },\r\n   \"outputs\": [],\r\n   \"source\": [\r\n    \"# Copy the checkpoint into our `trained_models` folder\\n\",\r\n    \"\\n\",\r\n    \"directory_paths = !ls -d logs/*\\n\",\r\n    \"last_checkpoint_file = directory_paths[-1] + \\\"/checkpoints/last.ckpt\\\"\\n\",\r\n    \"training_images = !find training_images/*\\n\",\r\n    \"date_string = !date +\\\"%Y-%m-%dT%H-%M-%S\\\"\\n\",\r\n    \"file_name = date_string[-1] + \\\"_\\\" + project_name + \\\"_\\\" + str(len(training_images)) + \\\"_training_images_\\\" +  str(max_training_steps) + \\\"_max_training_steps_\\\" + token + \\\"_token_\\\" + class_word + \\\"_class_word.ckpt\\\"\\n\",\r\n    \"\\n\",\r\n    \"file_name = file_name.replace(\\\" \\\", \\\"_\\\")\\n\",\r\n    \"\\n\",\r\n    \"!mkdir -p trained_models\\n\",\r\n    \"!mv \\\"{last_checkpoint_file}\\\" \\\"trained_models/{file_name}\\\"\\n\",\r\n    \"\\n\",\r\n    \"print(\\\"Download your trained model file from trained_models/\\\" + file_name + \\\" and use in your favorite Stable Diffusion repo!\\\")\"\r\n   ]\r\n  },\r\n  {\r\n   \"cell_type\": \"markdown\",\r\n   \"source\": [\r\n    \"# Optional - Upload to google drive\\n\",\r\n    \"* run the following commands in a new `terminal` in the `Dreambooth-Stable-Diffusion` directory\\n\",\r\n    \"* `chmod +x ./gdrive`\\n\",\r\n    \"* `./gdrive about`\\n\",\r\n    \"* `paste your token here after navigating to the link`\\n\",\r\n    \"* `./gdrive upload trained_models/{file_name.ckpt}`\"\r\n   ],\r\n   \"metadata\": {\r\n    \"collapsed\": false\r\n   }\r\n  },\r\n  {\r\n   \"cell_type\": \"markdown\",\r\n   \"id\": \"9a90ac5c\",\r\n   \"metadata\": {},\r\n   \"source\": [\r\n    \"# Big Important Note!\\n\",\r\n    \"\\n\",\r\n    \"The way to use your token is `<token> <class>` ie `joepenna person` and not just `joepenna`\"\r\n   ]\r\n  },\r\n  {\r\n   \"cell_type\": \"markdown\",\r\n   \"id\": \"d28d0139\",\r\n   \"metadata\": {},\r\n   \"source\": [\r\n    \"## Generate Images With Your Trained Model!\"\r\n   ]\r\n  },\r\n  {\r\n   \"cell_type\": \"code\",\r\n   \"execution_count\": null,\r\n   \"id\": \"80ddb03b\",\r\n   \"metadata\": {},\r\n   \"outputs\": [],\r\n   \"source\": [\r\n    \"!python scripts/stable_txt2img.py \\\\\\n\",\r\n    \" --ddim_eta 0.0 \\\\\\n\",\r\n    \" --n_samples 1 \\\\\\n\",\r\n    \" --n_iter 4 \\\\\\n\",\r\n    \" --scale 7.0 \\\\\\n\",\r\n    \" --ddim_steps 50 \\\\\\n\",\r\n    \" --ckpt \\\"/workspace/Dreambooth-Stable-Diffusion/trained_models/{file_name}\\\" \\\\\\n\",\r\n    \" --prompt \\\"joepenna person as a masterpiece portrait painting by John Singer Sargent in the style of Rembrandt\\\"\"\r\n   ]\r\n  }\r\n ],\r\n \"metadata\": {\r\n  \"colab\": {\r\n   \"collapsed_sections\": [],\r\n   \"provenance\": []\r\n  },\r\n  \"kernelspec\": {\r\n   \"display_name\": \"Python 3 (ipykernel)\",\r\n   \"language\": \"python\",\r\n   \"name\": \"python3\"\r\n  },\r\n  \"language_info\": {\r\n   \"codemirror_mode\": {\r\n    \"name\": \"ipython\",\r\n    \"version\": 3\r\n   },\r\n   \"file_extension\": \".py\",\r\n   \"mimetype\": \"text/x-python\",\r\n   \"name\": \"python\",\r\n   \"nbconvert_exporter\": \"python\",\r\n   \"pygments_lexer\": \"ipython3\",\r\n   \"version\": \"3.10.6\"\r\n  },\r\n  \"vscode\": {\r\n   \"interpreter\": {\r\n    \"hash\": \"b0fa6594d8f4cbf19f97940f81e996739fb7646882a419484c72d19e05852a7e\"\r\n   }\r\n  }\r\n },\r\n \"nbformat\": 4,\r\n \"nbformat_minor\": 5\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/dreambooth_runpod_joepenna.ipynb b/dreambooth_runpod_joepenna.ipynb
+--- a/dreambooth_runpod_joepenna.ipynb	
++++ b/dreambooth_runpod_joepenna.ipynb	
+@@ -2,57 +2,209 @@
+  "cells": [
+   {
+    "cell_type": "markdown",
+-   "id": "aa2c1ada",
++   "source": [],
++   "metadata": {
++    "collapsed": false,
++    "pycharm": {
++     "name": "#%% md\n"
++    }
++   }
++  },
++  {
++   "cell_type": "markdown",
++   "source": [
++    "## Build Environment"
++   ],
++   "metadata": {
++    "collapsed": false,
++    "pycharm": {
++     "name": "#%% md\n"
++    }
++   }
++  },
++  {
++   "cell_type": "code",
++   "execution_count": null,
++   "outputs": [],
++   "source": [
++    "# Download the 1.4 sd model\n",
++    "from IPython.display import clear_output\n",
++    "\n",
++    "from huggingface_hub import hf_hub_download\n",
++    "downloaded_model_path = hf_hub_download(\n",
++    " repo_id=\"stabilityai/stable-diffusion-2\",\n",
++    " filename=\"768-v-ema.ckpt\",\n",
++    " use_auth_token=True\n",
++    ")\n",
++    "\n",
++    "# Move the sd-v1-4.ckpt to the root of this directory as \"model.ckpt\"\n",
++    "actual_locations_of_model_blob = !readlink -f {downloaded_model_path}\n",
++    "!mv {actual_locations_of_model_blob[-1]} sd2.ckpt\n",
++    "clear_output()\n",
++    "print(\"✅ model.ckpt successfully downloaded\")"
++   ],
+    "metadata": {
+-    "id": "aa2c1ada"
+-   },
++    "collapsed": false,
++    "pycharm": {
++     "name": "#%%\n"
++    }
++   }
++  },
++  {
++   "cell_type": "code",
++   "execution_count": null,
++   "outputs": [],
+    "source": [
+-    "# Dreambooth\n",
+-    "### Notebook implementation by Joe Penna (@MysteryGuitarM on Twitter) - Improvements by David Bielejeski\n",
++    "def get_format_ts():\n",
++    "    import time\n",
++    "    from datetime import datetime\n",
++    "    return datetime.fromtimestamp(int(time.time())).strftime('%Y%m%d-%H%M%S')\n",
+     "\n",
+-    "### Instructions\n",
+-    "- Sign up for RunPod here: https://runpod.io/?ref=n8yfwyum\n",
+-    "    - Note: That's my personal referral link. Please don't use it if we are mortal enemies.\n",
++    "def get_img_urls(file_name):\n",
++    "    urls = []\n",
++    "    with open(file_name, \"r\") as f:\n",
++    "        lines = f.readlines()\n",
++    "        urls = [r.replace(\"\\n\", \"\") for r in lines]\n",
++    "    print(urls)\n",
++    "    return urls\n",
+     "\n",
+-    "- Click *Deploy* on either `SECURE CLOUD` or `COMMUNITY CLOUD`\n",
+     "\n",
+-    "- Follow the rest of the instructions in this video: https://www.youtube.com/watch?v=7m__xadX0z0#t=5m33.1s\n",
++    "def generate_training_images(urls, save_path):\n",
++    "    import os\n",
++    "    import requests\n",
++    "    from io import BytesIO\n",
++    "    from PIL import Image\n",
+     "\n",
+-    "Latest information on:\n",
+-    "https://github.com/JoePenna/Dreambooth-Stable-Diffusion"
+-   ]
+-  },
+-  {
+-   "cell_type": "markdown",
+-   "id": "7b971cc0",
++    "\n",
++    "    def image_grid(imgs, rows, cols):\n",
++    "     assert len(imgs) == rows*cols\n",
++    "\n",
++    "     w, h = imgs[0].size\n",
++    "     grid = Image.new('RGB', size=(cols*w, rows*h))\n",
++    "     grid_w, grid_h = grid.size\n",
++    "\n",
++    "     for i, img in enumerate(imgs):\n",
++    "      grid.paste(img, box=(i%cols*w, i//cols*h))\n",
++    "     return grid\n",
++    "\n",
++    "    def download_image(url):\n",
++    "     try:\n",
++    "      response = requests.get(url)\n",
++    "     except:\n",
++    "      return None\n",
++    "     return Image.open(BytesIO(response.content)).convert(\"RGB\")\n",
++    "\n",
++    "    images = list(filter(None,[download_image(url) for url in urls]))\n",
++    "    save_path = \"./training_images/{}\".format(save_path)\n",
++    "    if not os.path.exists(save_path):\n",
++    "     os.mkdir(save_path)\n",
++    "    [image.save(f\"{save_path}/{i}.png\", format=\"png\") for i, image in enumerate(images)]\n",
++    "    image_grid(images, 1, len(images))\n",
++    "\n",
++    "\n",
++    "def generate_reg_images(class_token, resume_model=\"v1-5.ckpt\", self_generated_files_count=200):\n",
++    "    !rm -rf ./outputs\n",
++    "    !python scripts/stable_txt2img.py \\\n",
++    "     --seed 10 \\\n",
++    "     --ddim_eta 0.0 \\\n",
++    "     --n_samples 1 \\\n",
++    "     --n_iter {self_generated_files_count} \\\n",
++    "     --scale 10.0 \\\n",
++    "     --ddim_steps 50 \\\n",
++    "     --ckpt resume_model/{resume_model} \\\n",
++    "     --prompt {class_token}\n",
++    "\n",
++    "    !mkdir -p regularization_images/{class_token}\n",
++    "    !mv outputs/txt2img-samples/*.png regularization_images/{class_token}\n",
++    "\n",
++    "def train_concept(\n",
++    "    class_token,\n",
++    "    prompt_token,\n",
++    "    resume_model=\"v1-5.ckpt\",\n",
++    "    is_gen_training_images=False,\n",
++    "    is_gen_reg_images=False,\n",
++    "    reg_count=1000,\n",
++    "    training_image_path=None,\n",
++    "    max_training_steps=2000):\n",
++    "    # write logs\n",
++    "    with open(\"./logs/training_logs.txt\", \"a+\") as f:\n",
++    "        content = \"ts: {}, from: {}, to: {}\\n\".format(get_format_ts(), resume_model.replace(\".ckpt\", \"\"), prompt_token)\n",
++    "        f.writelines(content)\n",
++    "        f.close()\n",
++    "    if is_gen_training_images:\n",
++    "        training_image_path = prompt_token + \"_\" + get_format_ts()\n",
++    "        urls = get_img_urls(\"./img_urls/{}.txt\".format(prompt_token))\n",
++    "        generate_training_images(urls, training_image_path)\n",
++    "    else:\n",
++    "        assert training_image_path is not None\n",
++    "\n",
++    "    if is_gen_reg_images:\n",
++    "        self_generated_files_count = reg_count\n",
++    "        generate_reg_images(class_token, resume_model, self_generated_files_count=self_generated_files_count)\n",
++    "\n",
++    "    project_name = prompt_token\n",
++    "\n",
++    "    # MAX STEPS\n",
++    "    # Match class_word to the category of the regularization images you chose above.\n",
++    "    class_word = class_token # typical uses are \"man\", \"person\", \"woman\"\n",
++    "    # This is the unique token you are incorporating into the stable diffusion model.\n",
++    "    token = prompt_token\n",
++    "\n",
++    "    reg_data_root = \"./regularization_images/\" + class_token\n",
++    "\n",
++    "    !rm -rf training_images/.ipynb_checkpoints\n",
++    "    !python \"main.py\" \\\n",
++    "     --base configs/stable-diffusion/v1-finetune_unfrozen-mu.yaml \\\n",
++    "     -t \\\n",
++    "     --reg_data_root \"{reg_data_root}\" \\\n",
++    "     -n \"{project_name}\" \\\n",
++    "     --gpus 0, \\\n",
++    "     --data_root \"./training_images/{training_image_path}\" \\\n",
++    "     --max_training_steps {max_training_steps} \\\n",
++    "     --class_word \"{class_word}\" \\\n",
++    "     --token \"{token}\" \\\n",
++    "     --no-test"
++   ],
+    "metadata": {
+-    "id": "7b971cc0"
+-   },
+-   "source": [
+-    "## Build Environment"
+-   ]
++    "collapsed": false,
++    "pycharm": {
++     "name": "#%%\n"
++    }
++   }
+   },
+   {
+    "cell_type": "code",
+    "execution_count": null,
+-   "id": "2AsGA1xpNQnb",
+-   "metadata": {
+-    "id": "2AsGA1xpNQnb"
+-   },
+    "outputs": [],
+    "source": [
+-    "# If running on Vast.AI, copy the code in this cell into a new notebook. Run it, then launch the `dreambooth_runpod_joepenna.ipynb` notebook from the jupyter interface.\n",
+-    "!git clone https://github.com/JoePenna/Dreambooth-Stable-Diffusion"
+-   ]
++    "%env USE_MEMORY_EFFICIENT_ATTENTION=1\n",
++    "# 定义新变量\n",
++    "def get_format_ts():\n",
++    "    import time\n",
++    "    from datetime import datetime\n",
++    "    return datetime.fromtimestamp(int(time.time())).strftime('%Y%m%d-%H%M%S')\n",
++    "class_token = \"style\"  # 这个变量是要训练的内容的类目，要用具有实际含义的词，如要训练一种特殊风格的椅子，就用chair, 训练特殊风格的人物，就用person, etc， 如果是一类风格的话，就用style\n",
++    "prompt_token = \"test\" # 这个变量要用模型当中没有出现过的词语\n",
++    "resume_model = \"model.ckpt\"  # 注意，这里是模型训练的启动点，意思是模型基于已有的哪个模型训练，在训练前问下良伟\n",
++    "# resume_model = \"model.ckpt\"\n",
++    "\n",
++    "is_gen_training_images = False\n",
++    "is_gen_reg_images = False\n",
++    "reg_count = 4\n",
++    "training_image_path = \"test_20221126-053249\"\n",
++    "max_training_steps=100\n",
++    "train_concept(class_token, prompt_token, resume_model, is_gen_training_images, is_gen_reg_images, reg_count, training_image_path,max_training_steps)"
++   ],
++   "metadata": {
++    "collapsed": false,
++    "pycharm": {
++     "name": "#%%\n"
++    }
++   }
+   },
+   {
+    "cell_type": "code",
+    "execution_count": null,
+-   "id": "9e1bc458-091b-42f4-a125-c3f0df20f29d",
+-   "metadata": {
+-    "id": "9e1bc458-091b-42f4-a125-c3f0df20f29d",
+-    "scrolled": true
+-   },
+    "outputs": [],
+    "source": [
+     "# BUILD ENV\n",
+@@ -74,101 +226,111 @@
+     "!pip install -qq \"ipywidgets>=7,<8\"\n",
+     "!pip install huggingface_hub\n",
+     "!pip install ipywidgets==7.7.1\n",
+-    "!pip install captionizer==1.0.1\n"
+-   ]
+-  },
+-  {
+-   "cell_type": "code",
+-   "execution_count": null,
+-   "id": "dae11c10",
++    "!pip install captionizer==1.0.1"
++   ],
+    "metadata": {
+-    "id": "dae11c10"
+-   },
+-   "outputs": [],
+-   "source": [
+-    "# Hugging Face Login\n",
+-    "from huggingface_hub import notebook_login\n",
+-    "\n",
+-    "notebook_login()"
+-   ]
++    "collapsed": false,
++    "pycharm": {
++     "name": "#%%\n"
++    }
++   }
+   },
+   {
+    "cell_type": "code",
+    "execution_count": null,
+-   "metadata": {
+-    "collapsed": false
+-   },
+    "outputs": [],
+    "source": [
+     "# Download the 1.4 sd model\n",
+-    "from IPython.display import clear_output\n",
+     "\n",
+     "from huggingface_hub import hf_hub_download\n",
+     "downloaded_model_path = hf_hub_download(\n",
+     " repo_id=\"CompVis/stable-diffusion-v-1-4-original\",\n",
+     " filename=\"sd-v1-4.ckpt\",\n",
+-    " use_auth_token=True\n",
++    " use_auth_token=\"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\"\n",
+     ")\n",
+     "\n",
+     "# Move the sd-v1-4.ckpt to the root of this directory as \"model.ckpt\"\n",
+     "actual_locations_of_model_blob = !readlink -f {downloaded_model_path}\n",
+     "!mv {actual_locations_of_model_blob[-1]} model.ckpt\n",
+-    "clear_output()\n",
+     "print(\"✅ model.ckpt successfully downloaded\")"
+-   ]
+-  },
+-  {
+-   "cell_type": "markdown",
+-   "id": "17d1d11a",
++   ],
+    "metadata": {
+-    "id": "17d1d11a"
+-   },
++    "collapsed": false,
++    "pycharm": {
++     "name": "#%%\n"
++    }
++   }
++  },
++  {
++   "cell_type": "code",
++   "execution_count": null,
++   "outputs": [],
+    "source": [
+-    "# Regularization Images (Skip this section if you are uploading your own or using the provided images)"
+-   ]
+-  },
+-  {
+-   "cell_type": "markdown",
+-   "id": "ed07a5df",
++    "# BUILD ENV\n",
++    "!pip install omegaconf\n",
++    "!pip install einops\n",
++    "!pip install pytorch-lightning==1.6.5\n",
++    "!pip install test-tube\n",
++    "!pip install transformers\n",
++    "!pip install kornia\n",
++    "!pip install -e git+https://github.com/CompVis/taming-transformers.git@master#egg=taming-transformers\n",
++    "!pip install -e git+https://github.com/openai/CLIP.git@main#egg=clip\n",
++    "!pip install setuptools==59.5.0\n",
++    "!pip install pillow==9.0.1\n",
++    "!pip install torchmetrics==0.6.0\n",
++    "!pip install -e .\n",
++    "!pip install protobuf==3.20.1\n",
++    "!pip install gdown\n",
++    "!pip install -qq diffusers[\"training\"]==0.3.0 transformers ftfy\n",
++    "!pip install -qq \"ipywidgets>=7,<8\"\n",
++    "!pip install huggingface_hub\n",
++    "!pip install ipywidgets==7.7.1\n",
++    "!pip install captionizer==1.0.1"
++   ],
+    "metadata": {
+-    "id": "ed07a5df"
+-   },
+-   "source": [
+-    "Training teaches your new model both your token **but** re-trains your class simultaneously.\n",
+-    "\n",
+-    "From cursory testing, it does not seem like reg images affect the model too much. However, they do affect your class greatly, which will in turn affect your generations.\n",
+-    "\n",
+-    "You can either generate your images here, or use the repos below to quickly download 1500 images."
+-   ]
++    "collapsed": false,
++    "pycharm": {
++     "name": "#%%\n"
++    }
++   }
+   },
+   {
+    "cell_type": "code",
+    "execution_count": null,
+-   "id": "67f9ff0c-b529-4c7c-8e26-8388d70a5d91",
+-   "metadata": {
+-    "id": "67f9ff0c-b529-4c7c-8e26-8388d70a5d91"
+-   },
+    "outputs": [],
+    "source": [
+-    "# GENERATE 200 images - Optional\n",
+-    "self_generated_files_prompt = \"person\" #@param {type:\"string\"}\n",
+-    "self_generated_files_count = 200 #@param {type:\"integer\"}\n",
+-    "\n",
+-    "!python scripts/stable_txt2img.py \\\n",
+-    " --seed 10 \\\n",
+-    " --ddim_eta 0.0 \\\n",
+-    " --n_samples 1 \\\n",
+-    " --n_iter {self_generated_files_count} \\\n",
+-    " --scale 10.0 \\\n",
+-    " --ddim_steps 50 \\\n",
+-    " --ckpt model.ckpt \\\n",
+-    " --prompt {self_generated_files_prompt}\n",
++    "# Download the 1.4 sd model\n",
+     "\n",
+-    "dataset=self_generated_files_prompt\n",
++    "from huggingface_hub import hf_hub_download\n",
++    "downloaded_model_path = hf_hub_download(\n",
++    " repo_id=\"CompVis/stable-diffusion-v-1-4-original\",\n",
++    " filename=\"sd-v1-4.ckpt\",\n",
++    " use_auth_token=\"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\"\n",
++    ")\n",
+     "\n",
+-    "!mkdir -p regularization_images/{dataset}\n",
+-    "!mv outputs/txt2img-samples/*.png regularization_images/{dataset}"
+-   ]
++    "# Move the sd-v1-4.ckpt to the root of this directory as \"model.ckpt\"\n",
++    "actual_locations_of_model_blob = !readlink -f {downloaded_model_path}\n",
++    "!mv {actual_locations_of_model_blob[-1]} model.ckpt\n",
++    "print(\"✅ model.ckpt successfully downloaded\")"
++   ],
++   "metadata": {
++    "collapsed": false,
++    "pycharm": {
++     "name": "#%%\n"
++    }
++   }
++  },
++  {
++   "cell_type": "code",
++   "execution_count": null,
++   "outputs": [],
++   "source": [],
++   "metadata": {
++    "collapsed": false,
++    "pycharm": {
++     "name": "#%%\n"
++    }
++   }
+   },
+   {
+    "cell_type": "code",
+@@ -472,4 +634,4 @@
+  },
+  "nbformat": 4,
+  "nbformat_minor": 5
+-}
++}
+\ No newline at end of file
