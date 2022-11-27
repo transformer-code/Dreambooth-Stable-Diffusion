@@ -154,6 +154,12 @@ class SpatialRescaler(nn.Module):
     def encode(self, x):
         return self(x)
 
+def get_param_value(model):
+    res = 0
+    for param in model.parameters():
+        res += param.mean().item()
+    return res
+
 
 class FrozenCLIPEmbedder(AbstractEncoder):
     """Uses the CLIP transformer encoder for text (from Hugging Face)"""
@@ -163,7 +169,6 @@ class FrozenCLIPEmbedder(AbstractEncoder):
         print("clip version is:", version_debug)
         self.tokenizer_debug = CLIPTokenizer.from_pretrained(version_debug, subfolder="tokenizer")
         self.transformer_debug = CLIPTextModel.from_pretrained(version_debug, subfolder="text_encoder")
-
 
         # print("clip version is:", version)
         self.tokenizer = CLIPTokenizer.from_pretrained(version)
@@ -198,8 +203,8 @@ class FrozenCLIPEmbedder(AbstractEncoder):
                 return embeddings      
 
         self.transformer.text_model.embeddings.forward = embedding_forward.__get__(self.transformer.text_model.embeddings)
-        self.transformer_debug.text_model.embeddings.forward = embedding_forward.__get__(
-            self.transformer_debug.text_model.embeddings)
+        # self.transformer_debug.text_model.embeddings.forward = embedding_forward.__get__(
+        #     self.transformer_debug.text_model.embeddings)
 
         def encoder_forward(
             self,
@@ -242,7 +247,7 @@ class FrozenCLIPEmbedder(AbstractEncoder):
             return hidden_states
 
         self.transformer.text_model.encoder.forward = encoder_forward.__get__(self.transformer.text_model.encoder)
-        self.transformer_debug.text_model.encoder.forward = encoder_forward.__get__(self.transformer_debug.text_model.encoder)
+        # self.transformer_debug.text_model.encoder.forward = encoder_forward.__get__(self.transformer_debug.text_model.encoder)
 
 
         def text_encoder_forward(
@@ -295,7 +300,7 @@ class FrozenCLIPEmbedder(AbstractEncoder):
             return last_hidden_state
 
         self.transformer.text_model.forward = text_encoder_forward.__get__(self.transformer.text_model)
-        self.transformer_debug.text_model.forward = text_encoder_forward.__get__(self.transformer_debug.text_model)
+        # self.transformer_debug.text_model.forward = text_encoder_forward.__get__(self.transformer_debug.text_model)
 
         def transformer_forward(
             self,
@@ -318,7 +323,7 @@ class FrozenCLIPEmbedder(AbstractEncoder):
             )
 
         self.transformer.forward = transformer_forward.__get__(self.transformer)
-        self.transformer_debug.forward = transformer_forward.__get__(self.transformer_debug)
+        # self.transformer_debug.forward = transformer_forward.__get__(self.transformer_debug)
 
     def freeze(self):
         self.transformer = self.transformer.eval()
@@ -326,19 +331,16 @@ class FrozenCLIPEmbedder(AbstractEncoder):
             param.requires_grad = False
 
     def forward(self, text, **kwargs):
-        print("text is:", text)
-
         batch_encoding = self.tokenizer(text, truncation=True, max_length=self.max_length, return_length=True,
                                         return_overflowing_tokens=False, padding="max_length", return_tensors="pt")
         tokens = batch_encoding["input_ids"].to(self.device)        
         z = self.transformer(input_ids=tokens, **kwargs)
-        print("z forward:", z)
 
-        batch_encoding = self.tokenizer_debug(text, truncation=True, max_length=self.max_length, return_length=True,
-                                        return_overflowing_tokens=False, padding="max_length", return_tensors="pt")
-        tokens = batch_encoding["input_ids"].to(self.device)
-        z = self.transformer_debug(input_ids=tokens, **kwargs)
-        print("z debug:", z)
+        print("debug tz:", get_param_value(self.tokenizer_debug))
+        print("debug te:", get_param_value(self.transformer_debug))
+
+        print("tz:", get_param_value(self.tokenizer))
+        print("te:", get_param_value(self.transformer))
 
         return z
 
