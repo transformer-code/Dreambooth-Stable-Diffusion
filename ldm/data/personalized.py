@@ -83,6 +83,7 @@ class PersonalizedBase(Dataset):
         else:
             example["caption"] = caption_from_path(image_path, self.data_root, self.coarse_class_text, self.placeholder_token)
         example["caption"] = "llwtest person moon"
+        print(example["caption"])
 
         # default to score-sde preprocessing
         img = np.array(image).astype(np.uint8)
