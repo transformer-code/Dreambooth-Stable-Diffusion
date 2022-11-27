@@ -282,6 +282,12 @@ class VQModelInterface(VQModel):
         return dec
 
 
+def print_named_params(model):
+    for param in model.named_parameters():
+        print(param)
+        return
+
+
 class AutoencoderKL(pl.LightningModule):
     def __init__(self,
                  ddconfig,
@@ -309,7 +315,20 @@ class AutoencoderKL(pl.LightningModule):
             self.monitor = monitor
         print("VAE ckpt is:", ckpt_path)
         if ckpt_path is not None:
-            self.init_from_ckpt(ckpt_path, ignore_keys=ignore_keys)
+            # self.init_from_ckpt(ckpt_path, ignore_keys=ignore_keys)
+            checkpoint = torch.load(ckpt_path, map_location="cpu")["state_dict"]
+            vae_state_dict = {}
+            vae_key = "first_stage_model."
+            keys = list(checkpoint.keys())
+            for key in keys:
+                if key.startswith(vae_key):
+                    vae_state_dict[key.replace(vae_key, "")] = checkpoint.get(key)
+            print("vae_dict:", vae_state_dict)
+            self.load_state_dict(vae_state_dict)
+            del checkpoint
+            del vae_state_dict
+        print_named_params(self)
+
 
     def init_from_ckpt(self, path, ignore_keys=list()):
         sd = torch.load(path, map_location="cpu")["state_dict"]

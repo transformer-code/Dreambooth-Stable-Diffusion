@@ -161,6 +161,10 @@ class SpatialRescaler(nn.Module):
 #         for param in model.parameters():
 #             res += param.mean().item()
 #         return res
+def print_named_params(model):
+    for param in model.named_parameters():
+        print(param)
+        return
 
 
 class FrozenCLIPEmbedder(AbstractEncoder):
@@ -173,20 +177,15 @@ class FrozenCLIPEmbedder(AbstractEncoder):
         if ckpt_path is not None:
             checkpoint = torch.load(ckpt_path, map_location="cpu")["state_dict"]
             keys = list(checkpoint.keys())
-            tokenizer_dict = {}
             transformer_dict = {}
             for key in keys:
                 if key.startswith("cond_stage_model.transformer"):
                     transformer_dict[key[len("cond_stage_model.transformer."):]] = checkpoint[key]
-                if key.startswith("cond_stage_model.tokenizer"):
-                    tokenizer_dict[key[len("cond_stage_model.tokenizer."):]] = checkpoint[key]
-            print("tokenizer_dict:", tokenizer_dict)
             print("transformer_dict:", transformer_dict)
-            self.tokenizer.load_state_dict(tokenizer_dict)
             self.transformer.load_state_dict(transformer_dict)
             del checkpoint
-            del tokenizer_dict
             del transformer_dict
+        print_named_params(self.transformer)
 
         self.device = device
         self.max_length = max_length
