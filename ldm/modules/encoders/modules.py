@@ -165,19 +165,28 @@ class SpatialRescaler(nn.Module):
 
 class FrozenCLIPEmbedder(AbstractEncoder):
     """Uses the CLIP transformer encoder for text (from Hugging Face)"""
-    def __init__(self, version="openai/clip-vit-large-patch14", device="cuda", max_length=77, is_need_subfolder=False):
+    def __init__(self, version="openai/clip-vit-large-patch14", device="cuda", max_length=77, ckpt_path=None):
         super().__init__()
-        # version = "liangwei1234/paivacuumcleaner-yxts_20221113-062334"
-        # print("clip version is:", version_debug)
-        if is_need_subfolder:
-            self.tokenizer = CLIPTokenizer.from_pretrained(version, subfolder="tokenizer")
-            self.transformer = CLIPTextModel.from_pretrained(version, subfolder="text_encoder")
-        else:
-            self.tokenizer = CLIPTokenizer.from_pretrained(version)
-            self.transformer = CLIPTextModel.from_pretrained(version)
-        # print("clip version is:", version)
-        # self.tokenizer = CLIPTokenizer.from_pretrained(version)
-        # self.transformer = CLIPTextModel.from_pretrained(version)
+        self.tokenizer = CLIPTokenizer.from_pretrained(version)
+        self.transformer = CLIPTextModel.from_pretrained(version)
+
+        if ckpt_path is not None:
+            checkpoint = torch.load(ckpt_path, map_location="cpu")["state_dict"]
+            keys = list(checkpoint.keys())
+            tokenizer_dict = {}
+            transformer_dict = {}
+            for key in keys:
+                if key.startswith("cond_stage_model.transformer"):
+                    transformer_dict[key[len("cond_stage_model.transformer."):]] = checkpoint[key]
+                if key.startswith("cond_stage_model.tokenizer"):
+                    tokenizer_dict[key[len("cond_stage_model.tokenizer."):]] = checkpoint[key]
+            print("tokenizer_dict:", tokenizer_dict)
+            print("transformer_dict:", transformer_dict)
+            self.tokenizer.load_state_dict(tokenizer_dict)
+            self.transformer.load_state_dict(transformer_dict)
+            del checkpoint
+            del tokenizer_dict
+            del transformer_dict
 
         self.device = device
         self.max_length = max_length
