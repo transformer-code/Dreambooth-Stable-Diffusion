@@ -154,11 +154,13 @@ class SpatialRescaler(nn.Module):
     def encode(self, x):
         return self(x)
 
+
 def get_param_value(model):
-    res = 0
-    for param in model.parameters():
-        res += param.mean().item()
-    return res
+    with torch.no_grad():
+        res = 0
+        for param in model.parameters():
+            res += param.mean().item()
+        return res
 
 
 class FrozenCLIPEmbedder(AbstractEncoder):

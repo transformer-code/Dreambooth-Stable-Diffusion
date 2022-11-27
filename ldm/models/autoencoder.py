@@ -307,6 +307,7 @@ class AutoencoderKL(pl.LightningModule):
             self.register_buffer("colorize", torch.randn(3, colorize_nlabels, 1, 1))
         if monitor is not None:
             self.monitor = monitor
+        print("VAE ckpt is:", ckpt_path)
         if ckpt_path is not None:
             self.init_from_ckpt(ckpt_path, ignore_keys=ignore_keys)
 
