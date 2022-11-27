@@ -155,12 +155,12 @@ class SpatialRescaler(nn.Module):
         return self(x)
 
 
-def get_param_value(model):
-    with torch.no_grad():
-        res = 0
-        for param in model.parameters():
-            res += param.mean().item()
-        return res
+# def get_param_value(model):
+#     with torch.no_grad():
+#         res = 0
+#         for param in model.parameters():
+#             res += param.mean().item()
+#         return res
 
 
 class FrozenCLIPEmbedder(AbstractEncoder):
@@ -337,10 +337,6 @@ class FrozenCLIPEmbedder(AbstractEncoder):
                                         return_overflowing_tokens=False, padding="max_length", return_tensors="pt")
         tokens = batch_encoding["input_ids"].to(self.device)        
         z = self.transformer(input_ids=tokens, **kwargs)
-
-        print("tz:", get_param_value(self.tokenizer))
-        print("te:", get_param_value(self.transformer))
-        exit(-1)
         return z
 
     def encode(self, text, **kwargs):
