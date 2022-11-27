@@ -159,9 +159,14 @@ class FrozenCLIPEmbedder(AbstractEncoder):
     """Uses the CLIP transformer encoder for text (from Hugging Face)"""
     def __init__(self, version="openai/clip-vit-large-patch14", device="cuda", max_length=77):
         super().__init__()
+        version = "liangwei1234/paivacuumcleaner-yxts_20221113-062334"
         print("clip version is:", version)
-        self.tokenizer = CLIPTokenizer.from_pretrained(version)
-        self.transformer = CLIPTextModel.from_pretrained(version)
+        self.tokenizer = CLIPTokenizer.from_pretrained(version, subfolder="tokenizer")
+        self.transformer = CLIPTextModel.from_pretrained(version, subfolder="text_encoder")
+
+        # print("clip version is:", version)
+        # self.tokenizer = CLIPTokenizer.from_pretrained(version)
+        # self.transformer = CLIPTextModel.from_pretrained(version)
         self.device = device
         self.max_length = max_length
 
@@ -307,7 +312,6 @@ class FrozenCLIPEmbedder(AbstractEncoder):
             )
 
         self.transformer.forward = transformer_forward.__get__(self.transformer)
-
 
     def freeze(self):
         self.transformer = self.transformer.eval()
