@@ -169,8 +169,8 @@ class FrozenCLIPEmbedder(AbstractEncoder):
         super().__init__()
         version = "liangwei1234/paivacuumcleaner-yxts_20221113-062334"
         # print("clip version is:", version_debug)
-        self.tokenizer_debug = CLIPTokenizer.from_pretrained(version, subfolder="tokenizer")
-        self.transformer_debug = CLIPTextModel.from_pretrained(version, subfolder="text_encoder")
+        self.tokenizer = CLIPTokenizer.from_pretrained(version, subfolder="tokenizer")
+        self.transformer = CLIPTextModel.from_pretrained(version, subfolder="text_encoder")
 
         # print("clip version is:", version)
         # self.tokenizer = CLIPTokenizer.from_pretrained(version)
