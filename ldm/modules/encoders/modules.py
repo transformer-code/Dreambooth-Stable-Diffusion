@@ -340,7 +340,7 @@ class FrozenCLIPEmbedder(AbstractEncoder):
 
         print("tz:", get_param_value(self.tokenizer))
         print("te:", get_param_value(self.transformer))
-
+        exit(-1)
         return z
 
     def encode(self, text, **kwargs):
