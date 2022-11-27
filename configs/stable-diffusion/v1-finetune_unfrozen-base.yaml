@@ -50,6 +50,7 @@ model:
     first_stage_config:
       target: ldm.models.autoencoder.AutoencoderKL
       params:
+        ckpt_path: None
         embed_dim: 4
         monitor: val/rec_loss
         ddconfig:

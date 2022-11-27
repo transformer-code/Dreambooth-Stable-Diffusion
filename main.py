@@ -681,6 +681,7 @@ if __name__ == "__main__":
 
         # config for cond stage model
         config.model.params.cond_stage_config.params.ckpt_path = opt.actual_resume
+        config.model.params.first_stage_config.params.ckpt_path = opt.actual_resume
         if opt.actual_resume:
             model = load_model_from_config(config, opt.actual_resume)
         else:
