@@ -167,10 +167,10 @@ class FrozenCLIPEmbedder(AbstractEncoder):
     """Uses the CLIP transformer encoder for text (from Hugging Face)"""
     def __init__(self, version="openai/clip-vit-large-patch14", device="cuda", max_length=77):
         super().__init__()
-        version_debug = "liangwei1234/paivacuumcleaner-yxts_20221113-062334"
-        print("clip version is:", version_debug)
-        self.tokenizer_debug = CLIPTokenizer.from_pretrained(version_debug, subfolder="tokenizer")
-        self.transformer_debug = CLIPTextModel.from_pretrained(version_debug, subfolder="text_encoder")
+        version = "liangwei1234/paivacuumcleaner-yxts_20221113-062334"
+        # print("clip version is:", version_debug)
+        # self.tokenizer_debug = CLIPTokenizer.from_pretrained(version_debug, subfolder="tokenizer")
+        # self.transformer_debug = CLIPTextModel.from_pretrained(version_debug, subfolder="text_encoder")
 
         # print("clip version is:", version)
         self.tokenizer = CLIPTokenizer.from_pretrained(version)
@@ -337,9 +337,6 @@ class FrozenCLIPEmbedder(AbstractEncoder):
                                         return_overflowing_tokens=False, padding="max_length", return_tensors="pt")
         tokens = batch_encoding["input_ids"].to(self.device)        
         z = self.transformer(input_ids=tokens, **kwargs)
-
-        print("debug tz:", get_param_value(self.tokenizer_debug))
-        print("debug te:", get_param_value(self.transformer_debug))
 
         print("tz:", get_param_value(self.tokenizer))
         print("te:", get_param_value(self.transformer))
