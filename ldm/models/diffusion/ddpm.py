@@ -1328,7 +1328,7 @@ class LatentDiffusion(DDPM):
                    plot_diffusion_rows=False, **kwargs):
 
         use_ddim = ddim_steps is not None
-
+        print(batch)
         log = dict()
         # We have a reg dataset, only pick the
         # first dataset - the training one.
