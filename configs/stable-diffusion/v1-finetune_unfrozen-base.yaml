@@ -72,7 +72,8 @@ model:
 
     cond_stage_config:
       target: ldm.modules.encoders.modules.FrozenCLIPEmbedder
-      params: None
+      params:
+        ckpt_path: None
 
 data:
   target: main.DataModuleFromConfig
